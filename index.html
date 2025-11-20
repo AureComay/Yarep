@@ -395,17 +395,21 @@
       }
 
       // Buscar si el usuario existe
-      const usersRef = ref(db, 'users');
-      const snapshot = await get(usersRef);
-      let userExists = false;
-      let userId = null;
+const usersRef = ref(db, 'users');
+const snapshot = await get(usersRef);
+let userExists = false;
 
-      snapshot.forEach(child => {
-        if (child.val().username === username) {
-          userExists = true;
-          userId = child.key;
-        }
-      });
+if (snapshot.exists()) {
+  const data = snapshot.val();
+  const entries = Object.entries(data);
+
+  for (const [id, userObj] of entries) {
+    if (userObj.username === username) {
+      userExists = true;
+      break;
+    }
+  }
+}
 
       try {
         if (userExists) {
