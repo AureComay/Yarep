@@ -4,22 +4,96 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Yalmil.com</title>
+<title>Yarep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0}
+body{
+font-family:'Poppins',sans-serif;
+display:flex;
+flex-direction:column;
+align-items:center;
+min-height:100vh;
+transition:.4s;
+padding:30px;
+gap:20px;
+animation:f .6s ease;
+}
+@keyframes f{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-<link rel="icon" href="https://cdn.discordapp.com/emojis/1416607460201857168.png?v=1" type="image/png">
+button,textarea{
+padding:12px;
+border:none;
+border-radius:12px;
+font-family:'Poppins',sans-serif;
+}
+
+button{
+font-weight:600;
+cursor:pointer;
+}
+
+textarea{
+width:300px;
+resize:none;
+height:80px;
+}
+
+.post{
+display:flex;
+gap:10px;
+padding:12px;
+border-radius:14px;
+width:320px;
+align-items:flex-start;
+animation:f .4s ease;
+}
+
+.post img{
+width:45px;
+height:45px;
+border-radius:50%;
+}
+
+.post-content{
+display:flex;
+flex-direction:column;
+}
+
+.post-content strong{
+font-size:14px;
+}
+
+@media(prefers-color-scheme:dark){
+body{background:linear-gradient(135deg,#0a0a0a,#1a001f);color:#e5ccff}
+button{background:#c084fc;color:#15001f}
+textarea{background:#15001f;color:#e5ccff;border:1px solid #c084fc}
+.post{background:rgba(40,0,60,.25);border:2px solid #c084fc}
+}
+
+@media(prefers-color-scheme:light){
+body{background:linear-gradient(135deg,#330a00,#662000);color:#ffd8a6}
+button{background:#ff8c00;color:#4d1a00}
+textarea{background:#4d1a00;color:#ffd8a6;border:1px solid #ff8c00}
+.post{background:rgba(60,20,0,.2);border:2px solid #ff8c00}
+}
+</style>
 </head>
 <body>
 
 <button id="loginBtn">Iniciar sesión con Google</button>
-<div id="message"></div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+<div id="userArea" style="display:none;">
+<textarea id="postInput" placeholder="Escribe algo..."></textarea>
+<button id="postBtn">Publicar</button>
+</div>
+
+<div id="posts"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBxOsWfP64cAUsMK6XPwfUcrEI6xQF_lc4",
@@ -34,20 +108,62 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
 const loginBtn = document.getElementById("loginBtn");
-const message = document.getElementById("message");
+const userArea = document.getElementById("userArea");
+const postBtn = document.getElementById("postBtn");
+const postInput = document.getElementById("postInput");
+const postsDiv = document.getElementById("posts");
 
-loginBtn.addEventListener("click", async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    message.textContent = `Success, ${user.displayName}`;
-  } catch (error) {
-    message.textContent = "Error al iniciar sesión";
-    console.error(error);
+loginBtn.onclick = async () => {
+  await signInWithPopup(auth, provider);
+};
+
+onAuthStateChanged(auth, user => {
+  if(user){
+    loginBtn.style.display = "none";
+    userArea.style.display = "block";
+
+    set(ref(db, "users/" + user.uid), {
+      name: user.displayName,
+      photo: user.photoURL,
+      email: user.email
+    });
   }
+});
+
+postBtn.onclick = () => {
+  const user = auth.currentUser;
+  if(!user || !postInput.value.trim()) return;
+
+  push(ref(db, "posts"), {
+    name: user.displayName,
+    photo: user.photoURL,
+    message: postInput.value,
+    date: Date.now()
+  });
+
+  postInput.value = "";
+};
+
+onValue(ref(db, "posts"), snapshot => {
+  postsDiv.innerHTML = "";
+  const data = snapshot.val();
+  if(!data) return;
+
+  Object.values(data).reverse().forEach(post => {
+    postsDiv.innerHTML += `
+      <div class="post">
+        <img src="${post.photo}">
+        <div class="post-content">
+          <strong>${post.name}</strong>
+          <span>${post.message}</span>
+        </div>
+      </div>
+    `;
+  });
 });
 </script>
 
