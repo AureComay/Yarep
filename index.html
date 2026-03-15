@@ -220,6 +220,7 @@ button.outline:hover {
   font-size: 1rem;
   line-height: 1.5;
   padding: 0 0.5rem;
+  word-wrap: break-word;
 }
 
 .post-actions {
@@ -237,6 +238,8 @@ button.outline:hover {
   font-size: 1rem;
   border-radius: 2rem;
   border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
 }
 
 .like-btn.liked {
@@ -348,11 +351,17 @@ button.outline:hover {
 .profile-card h2 {
   font-size: 1.8rem;
   font-weight: 700;
+  text-align: center;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 .profile-card p {
   font-size: 1rem;
   opacity: 0.8;
+  text-align: center;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 .profile-stats {
@@ -465,29 +474,36 @@ button.outline:hover {
   }
 }
 
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
+.hidden {
+  display: none !important;
 }
 
-.loading::after {
-  content: '';
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--primary);
-  border-top-color: transparent;
+.error-message {
+  color: var(--danger);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.success-message {
+  color: var(--success);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,.3);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-.hidden {
-  display: none !important;
 }
 </style>
 </head>
@@ -503,8 +519,9 @@ button.outline:hover {
   </div>
 
   <div id="userArea" class="hidden">
-    <textarea id="postInput" placeholder="¿Qué estás pensando?"></textarea>
+    <textarea id="postInput" placeholder="¿Qué estás pensando?" rows="3"></textarea>
     <button id="postBtn" class="primary">Publicar</button>
+    <div id="postError" class="error-message hidden"></div>
   </div>
 
   <div id="posts" class="posts-grid"></div>
@@ -531,7 +548,7 @@ button.outline:hover {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getDatabase, ref, set, push, onValue, update, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -556,6 +573,7 @@ const loginBtn = document.getElementById("loginBtn");
 const userArea = document.getElementById("userArea");
 const postBtn = document.getElementById("postBtn");
 const postInput = document.getElementById("postInput");
+const postError = document.getElementById("postError");
 const postsDiv = document.getElementById("posts");
 const profileSection = document.getElementById("profileSection");
 const profileImage = document.getElementById("profileImage");
@@ -569,11 +587,25 @@ const modalLikesCount = document.getElementById("modalLikesCount");
 
 // Estado de likes del usuario actual
 let currentUserLikes = new Set();
+let currentUser = null;
+
+// Función para mostrar error
+function showError(element, message) {
+  element.textContent = message;
+  element.classList.remove('hidden');
+  setTimeout(() => {
+    element.classList.add('hidden');
+  }, 3000);
+}
 
 // Función para cerrar sesión
 window.logout = async () => {
-  await signOut(auth);
-  location.reload();
+  try {
+    await auth.signOut();
+    window.location.reload();
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  }
 };
 
 // Función para abrir perfil
@@ -588,88 +620,123 @@ window.closeProfileModal = () => {
 
 // Mostrar perfil en modal
 async function showProfileModal(uid) {
-  const userSnapshot = await get(ref(db, `users/${uid}`));
-  const userData = userSnapshot.val();
-  
-  if (!userData) return;
-  
-  modalProfileImage.src = userData.photo || 'https://via.placeholder.com/120';
-  modalProfileName.textContent = userData.name || 'Usuario';
-  modalProfileEmail.textContent = userData.email || '';
-  
-  // Contar publicaciones del usuario
-  const postsSnapshot = await get(ref(db, 'posts'));
-  const posts = postsSnapshot.val() || {};
-  const userPosts = Object.values(posts).filter(post => post.uid === uid);
-  modalPostsCount.textContent = userPosts.length;
-  
-  // Contar likes totales recibidos
-  const totalLikes = userPosts.reduce((sum, post) => sum + (post.likes || 0), 0);
-  modalLikesCount.textContent = totalLikes;
-  
-  profileModal.classList.remove('hidden');
+  try {
+    const userSnapshot = await get(ref(db, `users/${uid}`));
+    const userData = userSnapshot.val();
+    
+    if (!userData) return;
+    
+    modalProfileImage.src = userData.photo || 'https://via.placeholder.com/120';
+    modalProfileName.textContent = userData.name || 'Usuario';
+    modalProfileEmail.textContent = userData.email || '';
+    
+    // Contar publicaciones del usuario
+    const postsSnapshot = await get(ref(db, 'posts'));
+    const posts = postsSnapshot.val() || {};
+    const userPosts = Object.values(posts).filter(post => post.uid === uid);
+    modalPostsCount.textContent = userPosts.length;
+    
+    // Contar likes totales recibidos
+    const totalLikes = userPosts.reduce((sum, post) => sum + (post.likes || 0), 0);
+    modalLikesCount.textContent = totalLikes;
+    
+    profileModal.classList.remove('hidden');
+  } catch (error) {
+    console.error('Error al mostrar perfil:', error);
+  }
 }
 
 // Login
 loginBtn.onclick = async () => {
   try {
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<span class="loading-spinner"></span> Cargando...';
     await signInWithPopup(auth, provider);
   } catch (error) {
     console.error('Error al iniciar sesión:', error);
-    alert('Error al iniciar sesión. Por favor, intenta de nuevo.');
+    showError(postError, 'Error al iniciar sesión. Por favor, intenta de nuevo.');
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Iniciar sesión con Google';
   }
 };
 
 // Estado de autenticación
 onAuthStateChanged(auth, async (user) => {
   if (user) {
+    currentUser = user;
     loginBtn.style.display = "none";
     profileSection.classList.remove("hidden");
     userArea.style.display = "block";
     
-    profileImage.src = user.photoURL;
-    profileName.textContent = user.displayName;
+    profileImage.src = user.photoURL || 'https://via.placeholder.com/45';
+    profileName.textContent = user.displayName || 'Usuario';
     
     // Guardar usuario en base de datos
     await set(ref(db, "users/" + user.uid), {
-      name: user.displayName,
-      photo: user.photoURL,
-      email: user.email
+      name: user.displayName || 'Usuario',
+      photo: user.photoURL || 'https://via.placeholder.com/120',
+      email: user.email || ''
     });
     
     // Cargar likes del usuario
-    const likesSnapshot = await get(ref(db, `likes/${user.uid}`));
-    if (likesSnapshot.exists()) {
-      currentUserLikes = new Set(Object.keys(likesSnapshot.val()));
+    try {
+      const likesSnapshot = await get(ref(db, `likes/${user.uid}`));
+      if (likesSnapshot.exists()) {
+        currentUserLikes = new Set(Object.keys(likesSnapshot.val()));
+      }
+    } catch (error) {
+      console.error('Error al cargar likes:', error);
     }
     
     // Click en perfil para ver mi propio perfil
     profileSection.onclick = () => showProfileModal(user.uid);
   } else {
+    currentUser = null;
     loginBtn.style.display = "block";
     profileSection.classList.add("hidden");
     userArea.style.display = "none";
+    currentUserLikes.clear();
   }
 });
 
 // Publicar post
-postBtn.onclick = () => {
+postBtn.onclick = async () => {
   const user = auth.currentUser;
-  if (!user || !postInput.value.trim()) return;
+  if (!user) {
+    showError(postError, 'Debes iniciar sesión para publicar');
+    return;
+  }
   
-  const postRef = push(ref(db, "posts"));
-  set(postRef, {
-    uid: user.uid,
-    name: user.displayName,
-    photo: user.photoURL,
-    message: postInput.value,
-    likes: 0,
-    likesCount: 0,
-    comments: {},
-    date: Date.now()
-  });
+  const message = postInput.value.trim();
+  if (!message) {
+    showError(postError, 'Escribe algo para publicar');
+    return;
+  }
   
-  postInput.value = "";
+  try {
+    postBtn.disabled = true;
+    postBtn.innerHTML = '<span class="loading-spinner"></span> Publicando...';
+    
+    const postRef = push(ref(db, "posts"));
+    await set(postRef, {
+      uid: user.uid,
+      name: user.displayName || 'Usuario',
+      photo: user.photoURL || 'https://via.placeholder.com/45',
+      message: message,
+      likes: 0,
+      date: Date.now()
+    });
+    
+    postInput.value = "";
+    postBtn.disabled = false;
+    postBtn.textContent = 'Publicar';
+    
+  } catch (error) {
+    console.error('Error al publicar:', error);
+    showError(postError, 'Error al publicar. Intenta de nuevo.');
+    postBtn.disabled = false;
+    postBtn.textContent = 'Publicar';
+  }
 };
 
 // Escuchar posts
@@ -678,44 +745,57 @@ onValue(ref(db, "posts"), (snapshot) => {
   const data = snapshot.val();
   if (!data) return;
   
-  Object.entries(data)
-    .sort(([,a], [,b]) => (b.date || 0) - (a.date || 0))
-    .forEach(([id, post]) => {
-      const commentsHTML = post.comments ? Object.entries(post.comments)
-        .map(([commentId, comment]) => `
-          <div class="comment" key="${commentId}">
-            <strong onclick="openProfile('${comment.uid}')">${comment.name}:</strong> 
-            ${comment.text}
-          </div>
-        `).join("") : "";
-      
-      const user = auth.currentUser;
-      const hasLiked = user && currentUserLikes.has(id);
-      
-      const postElement = document.createElement('div');
-      postElement.className = 'post';
-      postElement.innerHTML = `
-        <div class="post-header" onclick="openProfile('${post.uid}')">
-          <img src="${post.photo || 'https://via.placeholder.com/45'}" alt="${post.name}">
-          <strong>${post.name}</strong>
-        </div>
-        <div class="post-content">${post.message}</div>
-        <div class="post-actions">
-          <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${id}', this)">
-            ❤️ <span class="likes-count">${post.likes || 0}</span>
-          </button>
-        </div>
-        <div class="comment-input">
-          <input type="text" placeholder="Escribe un comentario..." id="comment-${id}">
-          <button onclick="commentPost('${id}')">Comentar</button>
-        </div>
-        <div class="comments-section">
-          ${commentsHTML || '<p style="opacity:0.5; text-align:center;">No hay comentarios aún</p>'}
-        </div>
-      `;
-      
-      postsDiv.appendChild(postElement);
-    });
+  // Convertir a array y ordenar por fecha
+  const postsArray = Object.entries(data).map(([id, post]) => ({
+    id,
+    ...post
+  }));
+  
+  postsArray.sort((a, b) => (b.date || 0) - (a.date || 0));
+  
+  postsArray.forEach(post => {
+    const comments = post.comments || {};
+    const commentsArray = Object.entries(comments).map(([id, comment]) => ({
+      id,
+      ...comment
+    }));
+    
+    commentsArray.sort((a, b) => (b.date || 0) - (a.date || 0));
+    
+    const commentsHTML = commentsArray.map(comment => `
+      <div class="comment">
+        <strong onclick="openProfile('${comment.uid}')">${comment.name}:</strong> 
+        ${comment.text}
+      </div>
+    `).join("");
+    
+    const user = auth.currentUser;
+    const hasLiked = user && currentUserLikes.has(post.id);
+    
+    const postElement = document.createElement('div');
+    postElement.className = 'post';
+    postElement.innerHTML = `
+      <div class="post-header" onclick="openProfile('${post.uid}')">
+        <img src="${post.photo || 'https://via.placeholder.com/45'}" alt="${post.name}">
+        <strong>${post.name}</strong>
+      </div>
+      <div class="post-content">${post.message}</div>
+      <div class="post-actions">
+        <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
+          ❤️ <span class="likes-count">${post.likes || 0}</span>
+        </button>
+      </div>
+      <div class="comment-input">
+        <input type="text" placeholder="Escribe un comentario..." id="comment-${post.id}">
+        <button onclick="commentPost('${post.id}')">Comentar</button>
+      </div>
+      <div class="comments-section">
+        ${commentsHTML || '<p style="opacity:0.5; text-align:center;">No hay comentarios aún</p>'}
+      </div>
+    `;
+    
+    postsDiv.appendChild(postElement);
+  });
 });
 
 // Función para dar/quitar like
@@ -730,6 +810,8 @@ window.toggleLike = async (postId, buttonElement) => {
   const likeRef = ref(db, `likes/${user.uid}/${postId}`);
   
   try {
+    buttonElement.disabled = true;
+    
     const postSnapshot = await get(postRef);
     const post = postSnapshot.val();
     
@@ -737,7 +819,7 @@ window.toggleLike = async (postId, buttonElement) => {
     
     if (currentUserLikes.has(postId)) {
       // Quitar like
-      await update(postRef, { likes: (post.likes || 0) - 1 });
+      await update(postRef, { likes: Math.max(0, (post.likes || 0) - 1) });
       await set(likeRef, null);
       currentUserLikes.delete(postId);
       buttonElement.classList.remove('liked');
@@ -751,12 +833,15 @@ window.toggleLike = async (postId, buttonElement) => {
     
     // Actualizar contador
     const likesCountSpan = buttonElement.querySelector('.likes-count');
-    const newCount = (post.likes || 0) + (currentUserLikes.has(postId) ? 1 : -1);
+    const newCount = post.likes + (currentUserLikes.has(postId) ? 1 : -1);
     likesCountSpan.textContent = Math.max(0, newCount);
+    
+    buttonElement.disabled = false;
     
   } catch (error) {
     console.error('Error al actualizar like:', error);
     alert('Error al procesar el like');
+    buttonElement.disabled = false;
   }
 };
 
@@ -770,18 +855,20 @@ window.commentPost = async (postId) => {
     return;
   }
   
-  if (!input.value.trim()) return;
+  const commentText = input.value.trim();
+  if (!commentText) return;
   
   try {
     const commentRef = push(ref(db, `posts/${postId}/comments`));
     await set(commentRef, {
       uid: user.uid,
-      name: user.displayName,
-      text: input.value,
+      name: user.displayName || 'Usuario',
+      text: commentText,
       date: Date.now()
     });
     
     input.value = "";
+    
   } catch (error) {
     console.error('Error al comentar:', error);
     alert('Error al publicar el comentario');
@@ -792,6 +879,14 @@ window.commentPost = async (postId) => {
 profileModal.addEventListener('click', (e) => {
   if (e.target === profileModal) {
     closeProfileModal();
+  }
+});
+
+// Permitir publicar con Enter
+postInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    postBtn.click();
   }
 });
 </script>
