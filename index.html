@@ -521,6 +521,8 @@ button:disabled {
   border-radius: 0.5rem;
   margin-top: 0.5rem;
   word-break: break-all;
+  max-height: 100px;
+  overflow-y: auto;
 }
 </style>
 </head>
@@ -634,7 +636,12 @@ function showMessage(element, message, isError = false) {
 function debug(message, data = null) {
   console.log(message, data);
   debugInfo.classList.remove('hidden');
-  debugInfo.innerHTML = `${new Date().toLocaleTimeString()}: ${message}<br>${data ? JSON.stringify(data).substring(0, 100) : ''}`;
+  const timestamp = new Date().toLocaleTimeString();
+  const dataStr = data ? JSON.stringify(data).substring(0, 100) : '';
+  debugInfo.innerHTML = `${timestamp}: ${message} ${dataStr}<br>` + debugInfo.innerHTML;
+  if (debugInfo.children.length > 5) {
+    debugInfo.removeChild(debugInfo.lastChild);
+  }
 }
 
 // Verificar conexión a Firebase
@@ -812,6 +819,7 @@ onValue(postsRef, (snapshot) => {
   postsDiv.innerHTML = "";
   
   const data = snapshot.val();
+  debug("Datos crudos:", data);
   
   if (!data) {
     debug("No hay posts");
@@ -823,7 +831,17 @@ onValue(postsRef, (snapshot) => {
   const postsArray = Object.entries(data)
     .map(([id, post]) => {
       if (!post) return null;
-      return { id, ...post };
+      return { 
+        id, 
+        ...post,
+        // Asegurar que todos los campos existan
+        message: post.message || '',
+        name: post.name || 'Usuario',
+        photo: post.photo || 'https://via.placeholder.com/45',
+        uid: post.uid || '',
+        likes: post.likes || 0,
+        date: post.date || Date.now()
+      };
     })
     .filter(post => post !== null);
   
@@ -837,18 +855,25 @@ onValue(postsRef, (snapshot) => {
   // Ordenar por fecha (más recientes primero)
   postsArray.sort((a, b) => (b.date || 0) - (a.date || 0));
   
+  // Mostrar cada post
   postsArray.forEach(post => {
     try {
       // Procesar comentarios
       const comments = post.comments || {};
       const commentsArray = Object.entries(comments)
-        .map(([id, comment]) => ({ id, ...comment }))
+        .map(([id, comment]) => ({ 
+          id, 
+          ...comment,
+          name: comment.name || 'Usuario',
+          text: comment.text || '',
+          uid: comment.uid || ''
+        }))
         .sort((a, b) => (b.date || 0) - (a.date || 0));
       
       const commentsHTML = commentsArray.map(comment => `
         <div class="comment">
-          <strong onclick="openProfile('${comment.uid}')">${comment.name || 'Usuario'}:</strong> 
-          ${comment.text || ''}
+          <strong onclick="openProfile('${comment.uid}')">${comment.name}:</strong> 
+          ${comment.text}
         </div>
       `).join("");
       
@@ -858,13 +883,13 @@ onValue(postsRef, (snapshot) => {
       postElement.className = 'post';
       postElement.innerHTML = `
         <div class="post-header" onclick="openProfile('${post.uid}')">
-          <img src="${post.photo || 'https://via.placeholder.com/45'}" alt="${post.name || 'Usuario'}">
-          <strong>${post.name || 'Usuario'}</strong>
+          <img src="${post.photo}" alt="${post.name}">
+          <strong>${post.name}</strong>
         </div>
-        <div class="post-content">${post.message || ''}</div>
+        <div class="post-content">${post.message}</div>
         <div class="post-actions">
           <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
-            ❤️ <span class="likes-count">${post.likes || 0}</span>
+            ❤️ <span class="likes-count">${post.likes}</span>
           </button>
         </div>
         <div class="comment-input">
