@@ -7,1025 +7,678 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-:root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --dark-bg: #0f0f1a;
-  --dark-card: #1a1a2e;
-  --dark-border: #2d2d44;
-  --light-bg: #f9fafb;
-  --light-card: #ffffff;
-  --light-border: #e5e7eb;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 2rem;
-  gap: 1.5rem;
-  transition: var(--transition);
-  animation: fadeIn 0.5s ease;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 30px 20px;
+    gap: 25px;
+    animation: fadeIn 0.5s ease;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .container {
-  max-width: 800px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 1rem;
-  border-radius: 1rem;
-  backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 .logo {
-  font-size: 1.8rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary), var(--success));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 textarea, input {
-  padding: 0.875rem 1rem;
-  border-radius: 0.75rem;
-  border: 2px solid transparent;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  transition: var(--transition);
-  width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+    outline: none;
 }
 
-textarea:focus, input:focus {
-  outline: none;
-  border-color: var(--primary);
-  transform: translateY(-2px);
+textarea {
+    min-height: 100px;
+    resize: vertical;
 }
 
 button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: var(--transition);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
 button:active {
-  transform: scale(0.95);
+    transform: translateY(0);
 }
 
-button.primary {
-  background: var(--primary);
-  color: white;
+#loginBtn {
+    background: white;
+    color: #333;
+    border: 2px solid #e0e0e0;
 }
 
-button.primary:hover:not(:disabled) {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -10px var(--primary);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.profile-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: 3rem;
-  transition: var(--transition);
-}
-
-.profile-section:hover {
-  background: rgba(99, 102, 241, 0.1);
-}
-
-.profile-img {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--primary);
-  transition: var(--transition);
-}
-
-.profile-section:hover .profile-img {
-  transform: scale(1.05);
-}
-
-.profile-name {
-  font-weight: 600;
-  display: none;
-}
-
-@media (min-width: 640px) {
-  .profile-name {
-    display: inline;
-  }
-}
-
-.posts-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
+#userArea {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
 .post {
-  width: 100%;
-  padding: 1.5rem;
-  border-radius: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  animation: fadeIn 0.3s ease;
-  transition: var(--transition);
-  border: 2px solid transparent;
+    width: 100%;
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    animation: fadeIn 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
 .post:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
 }
 
 .post-header {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.75rem;
-  transition: var(--transition);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
 }
 
 .post-header:hover {
-  background: rgba(99, 102, 241, 0.1);
+    background: rgba(255,255,255,0.1);
 }
 
 .post-header img {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: 2px solid var(--primary);
-  transition: var(--transition);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #667eea;
 }
 
-.post-header:hover img {
-  transform: scale(1.05);
-}
-
-.post-content {
-  font-size: 1rem;
-  line-height: 1.5;
-  padding: 0 0.5rem;
-  word-wrap: break-word;
+.post-message {
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 10px 0;
 }
 
 .post-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  padding: 0.5rem;
-  border-top: 1px solid rgba(99, 102, 241, 0.2);
-  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    display: flex;
+    gap: 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 15px;
 }
 
-.like-btn {
-  background: transparent;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border-radius: 2rem;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: var(--transition);
+.action-btn {
+    background: transparent;
+    color: inherit;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
-.like-btn.liked {
-  background: var(--danger);
-  color: white;
-  border-color: var(--danger);
+.action-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: none;
+    box-shadow: none;
 }
 
-.like-btn:not(.liked):hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: var(--danger);
-}
-
-.comment-input {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.comment-input input {
-  flex: 1;
-}
-
-.comment-input button {
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  background: var(--primary);
-  color: white;
-  min-width: 80px;
-}
-
-.comment-input button:hover:not(:disabled) {
-  background: var(--primary-dark);
+.action-btn.liked {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
 }
 
 .comments-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-  max-height: 300px;
-  overflow-y: auto;
-  padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.comment-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.comment-input input {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 13px;
 }
 
 .comment {
-  font-size: 0.9rem;
-  padding: 0.75rem 1rem;
-  border-radius: 1rem;
-  animation: fadeIn 0.2s ease;
-  transition: var(--transition);
-}
-
-.comment:hover {
-  transform: translateX(4px);
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    line-height: 1.5;
 }
 
 .comment strong {
-  color: var(--primary);
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.comment strong:hover {
-  text-decoration: underline;
+    color: #667eea;
+    font-weight: 600;
 }
 
 .profile-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
 }
 
-.profile-card {
-  width: 90%;
-  max-width: 400px;
-  padding: 2rem;
-  border-radius: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.profile-card img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 4px solid var(--primary);
-  object-fit: cover;
-}
-
-.profile-card h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  text-align: center;
-  word-wrap: break-word;
-  max-width: 100%;
-}
-
-.profile-card p {
-  font-size: 1rem;
-  opacity: 0.8;
-  text-align: center;
-  word-wrap: break-word;
-  max-width: 100%;
-}
-
-.profile-stats {
-  display: flex;
-  gap: 2rem;
-  margin: 1rem 0;
-}
-
-.stat {
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  opacity: 0.7;
+.profile-content {
+    background: rgba(30,30,40,0.95);
+    border-radius: 24px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
 .close-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: var(--danger);
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: var(--transition);
-  border: none;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .close-btn:hover {
-  transform: rotate(90deg);
+    background: rgba(255,255,255,0.2);
 }
 
-/* Dark mode */
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.profile-header img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid #667eea;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin: 20px 0;
+    padding: 15px 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.user-profile-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: inherit;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 14px;
+}
+
+.user-profile-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
 @media (prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(135deg, var(--dark-bg), #1a0f2e);
-    color: #f0f0f0;
-  }
-  
-  textarea, input {
-    background: var(--dark-card);
-    color: #f0f0f0;
-    border-color: var(--dark-border);
-  }
-  
-  .post {
-    background: var(--dark-card);
-    border-color: var(--dark-border);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  }
-  
-  .comment {
-    background: rgba(99, 102, 241, 0.1);
-  }
-  
-  .profile-card {
-    background: var(--dark-card);
-    border: 2px solid var(--dark-border);
-  }
-  
-  .header {
-    background: rgba(26, 26, 46, 0.7);
-    border: 1px solid var(--dark-border);
-  }
+    body {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        color: #ffffff;
+    }
+    
+    textarea, input {
+        background: rgba(255,255,255,0.05);
+        color: #ffffff;
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    textarea:focus, input:focus {
+        border-color: #667eea;
+    }
+    
+    .post {
+        background: rgba(255,255,255,0.03);
+    }
 }
 
-/* Light mode */
 @media (prefers-color-scheme: light) {
-  body {
-    background: linear-gradient(135deg, var(--light-bg), #eef2ff);
-    color: #1f2937;
-  }
-  
-  textarea, input {
-    background: var(--light-card);
-    color: #1f2937;
-    border-color: var(--light-border);
-  }
-  
-  .post {
-    background: var(--light-card);
-    border-color: var(--light-border);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
-  
-  .comment {
-    background: #f3f4f6;
-  }
-  
-  .profile-card {
-    background: var(--light-card);
-    border: 2px solid var(--light-border);
-  }
-  
-  .header {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid var(--light-border);
-  }
-}
-
-.hidden {
-  display: none !important;
-}
-
-.error-message {
-  color: var(--danger);
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  text-align: center;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background: rgba(239, 68, 68, 0.1);
-}
-
-.success-message {
-  color: var(--success);
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  text-align: center;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background: rgba(16, 185, 129, 0.1);
-}
-
-.loading-spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255,255,255,.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.no-posts {
-  text-align: center;
-  padding: 3rem;
-  opacity: 0.7;
-  font-style: italic;
-}
-
-.debug-info {
-  font-size: 0.8rem;
-  padding: 0.5rem;
-  background: rgba(0,0,0,0.1);
-  border-radius: 0.5rem;
-  margin-top: 0.5rem;
-  word-break: break-all;
-  max-height: 100px;
-  overflow-y: auto;
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333333;
+    }
+    
+    textarea, input {
+        background: white;
+        color: #333333;
+        border-color: #e0e0e0;
+    }
+    
+    textarea:focus, input:focus {
+        border-color: #667eea;
+    }
+    
+    .post {
+        background: rgba(255,255,255,0.7);
+        border-color: rgba(0,0,0,0.1);
+    }
+    
+    .comment {
+        background: rgba(0,0,0,0.03);
+    }
 }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <span class="logo">Yarep</span>
-    <button id="loginBtn" class="primary">Iniciar sesión con Google</button>
-    <div id="profileSection" class="profile-section hidden">
-      <img id="profileImage" class="profile-img" src="" alt="Profile">
-      <span id="profileName" class="profile-name"></span>
+    <div class="header">
+        <span class="logo">Yarep</span>
+        <button id="loginBtn" class="user-profile-btn">
+            <span>👤</span> Iniciar sesión
+        </button>
     </div>
-  </div>
 
-  <div id="userArea" class="hidden">
-    <textarea id="postInput" placeholder="¿Qué estás pensando?" rows="3"></textarea>
-    <button id="postBtn" class="primary">Publicar</button>
-    <div id="postError" class="error-message hidden"></div>
-    <div id="postSuccess" class="success-message hidden"></div>
-  </div>
+    <div id="userArea" style="display:none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Crear publicación</h3>
+            <button id="profileBtn" class="user-profile-btn">
+                <span>👤</span> Mi perfil
+            </button>
+        </div>
+        <textarea id="postInput" placeholder="¿Qué estás pensando?"></textarea>
+        <button id="postBtn">Publicar</button>
+    </div>
 
-  <div id="posts" class="posts-grid"></div>
-  <div id="debugInfo" class="debug-info hidden"></div>
+    <div id="posts"></div>
 </div>
 
-<div id="profileModal" class="profile-modal hidden">
-  <div class="profile-card">
-    <button class="close-btn" onclick="closeProfileModal()">✕</button>
-    <img id="modalProfileImage" src="" alt="Profile">
-    <h2 id="modalProfileName"></h2>
-    <p id="modalProfileEmail"></p>
-    <div class="profile-stats">
-      <div class="stat">
-        <div class="stat-number" id="modalPostsCount">0</div>
-        <div class="stat-label">Publicaciones</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number" id="modalLikesCount">0</div>
-        <div class="stat-label">Likes recibidos</div>
-      </div>
+<!-- Modal de perfil -->
+<div id="profileModal" class="profile-modal">
+    <div class="profile-content">
+        <button class="close-btn" id="closeProfile">&times;</button>
+        <div id="profileContent"></div>
     </div>
-  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, set, push, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, set, push, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBxOsWfP64cAUsMK6XPwfUcrEI6xQF_lc4",
-  authDomain: "yarep-ydturl.firebaseapp.com",
-  databaseURL: "https://yarep-ydturl-default-rtdb.firebaseio.com",
-  projectId: "yarep-ydturl",
-  storageBucket: "yarep-ydturl.firebasestorage.app",
-  messagingSenderId: "765100698390",
-  appId: "1:765100698390:web:7db4490c174dac46253e37"
+    apiKey: "AIzaSyBxOsWfP64cAUsMK6XPwfUcrEI6xQF_lc4",
+    authDomain: "yarep-ydturl.firebaseapp.com",
+    databaseURL: "https://yarep-ydturl-default-rtdb.firebaseio.com",
+    projectId: "yarep-ydturl",
+    storageBucket: "yarep-ydturl.firebasestorage.app",
+    messagingSenderId: "765100698390",
+    appId: "1:765100698390:web:7db4490c174dac46253e37"
 };
 
-// Inicializar Firebase
-console.log("Inicializando Firebase...");
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
-// Configurar persistencia
 await setPersistence(auth, browserLocalPersistence);
 
-// Elementos del DOM
 const loginBtn = document.getElementById("loginBtn");
 const userArea = document.getElementById("userArea");
 const postBtn = document.getElementById("postBtn");
 const postInput = document.getElementById("postInput");
-const postError = document.getElementById("postError");
-const postSuccess = document.getElementById("postSuccess");
 const postsDiv = document.getElementById("posts");
-const profileSection = document.getElementById("profileSection");
-const profileImage = document.getElementById("profileImage");
-const profileName = document.getElementById("profileName");
+const profileBtn = document.getElementById("profileBtn");
 const profileModal = document.getElementById("profileModal");
-const modalProfileImage = document.getElementById("modalProfileImage");
-const modalProfileName = document.getElementById("modalProfileName");
-const modalProfileEmail = document.getElementById("modalProfileEmail");
-const modalPostsCount = document.getElementById("modalPostsCount");
-const modalLikesCount = document.getElementById("modalLikesCount");
-const debugInfo = document.getElementById("debugInfo");
+const profileContent = document.getElementById("profileContent");
+const closeProfile = document.getElementById("closeProfile");
 
-// Estado de la aplicación
 let currentUser = null;
-let currentUserLikes = new Set();
+let userLikes = {};
 
-// Función para mostrar mensajes
-function showMessage(element, message, isError = false) {
-  element.textContent = message;
-  element.classList.remove('hidden');
-  
-  if (isError) {
-    console.error(message);
-  } else {
-    console.log(message);
-  }
-  
-  setTimeout(() => {
-    element.classList.add('hidden');
-  }, 3000);
-}
-
-// Función para depuración
-function debug(message, data = null) {
-  console.log(message, data);
-  debugInfo.classList.remove('hidden');
-  const timestamp = new Date().toLocaleTimeString();
-  const dataStr = data ? JSON.stringify(data).substring(0, 100) : '';
-  debugInfo.innerHTML = `${timestamp}: ${message} ${dataStr}<br>` + debugInfo.innerHTML;
-  if (debugInfo.children.length > 5) {
-    debugInfo.removeChild(debugInfo.lastChild);
-  }
-}
-
-// Verificar conexión a Firebase
-debug("Verificando conexión a Firebase...");
-
-// Función para cerrar sesión
-window.logout = async () => {
-  try {
-    await auth.signOut();
-    window.location.reload();
-  } catch (error) {
-    console.error('Error al cerrar sesión:', error);
-  }
-};
-
-// Función para abrir perfil
-window.openProfile = (uid) => {
-  showProfileModal(uid);
-};
-
-// Función para cerrar modal
-window.closeProfileModal = () => {
-  profileModal.classList.add('hidden');
-};
-
-// Mostrar perfil en modal
-async function showProfileModal(uid) {
-  try {
-    const userSnapshot = await get(ref(db, `users/${uid}`));
-    const userData = userSnapshot.val();
-    
-    if (!userData) {
-      showMessage(postError, 'Usuario no encontrado', true);
-      return;
+// Cargar likes del usuario
+async function loadUserLikes(userId) {
+    const likesRef = ref(db, `userLikes/${userId}`);
+    const snapshot = await get(likesRef);
+    if (snapshot.exists()) {
+        userLikes = snapshot.val() || {};
     }
-    
-    modalProfileImage.src = userData.photo || 'https://via.placeholder.com/120';
-    modalProfileName.textContent = userData.name || 'Usuario';
-    modalProfileEmail.textContent = userData.email || '';
-    
-    // Contar publicaciones del usuario
-    const postsSnapshot = await get(ref(db, 'posts'));
-    const posts = postsSnapshot.val() || {};
-    const userPosts = Object.values(posts).filter(post => post && post.uid === uid);
-    modalPostsCount.textContent = userPosts.length;
-    
-    // Contar likes totales recibidos
-    const totalLikes = userPosts.reduce((sum, post) => sum + (post.likes || 0), 0);
-    modalLikesCount.textContent = totalLikes;
-    
-    profileModal.classList.remove('hidden');
-  } catch (error) {
-    console.error('Error al mostrar perfil:', error);
-    showMessage(postError, 'Error al cargar perfil', true);
-  }
 }
 
-// Login
+// Guardar like
+async function saveUserLike(userId, postId) {
+    userLikes[postId] = true;
+    await set(ref(db, `userLikes/${userId}`), userLikes);
+}
+
+// Quitar like
+async function removeUserLike(userId, postId) {
+    delete userLikes[postId];
+    await set(ref(db, `userLikes/${userId}`), userLikes);
+}
+
 loginBtn.onclick = async () => {
-  try {
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<span class="loading-spinner"></span> Cargando...';
-    debug("Iniciando sesión con Google...");
-    
-    const result = await signInWithPopup(auth, provider);
-    debug("Sesión iniciada:", result.user.email);
-    
-  } catch (error) {
-    console.error('Error al iniciar sesión:', error);
-    showMessage(postError, 'Error al iniciar sesión: ' + error.message, true);
-    loginBtn.disabled = false;
-    loginBtn.innerHTML = 'Iniciar sesión con Google';
-  }
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+    }
 };
 
-// Estado de autenticación
-onAuthStateChanged(auth, async (user) => {
-  debug("Estado de autenticación cambiado:", user ? user.email : "No autenticado");
-  
-  if (user) {
-    currentUser = user;
-    loginBtn.style.display = "none";
-    profileSection.classList.remove("hidden");
-    userArea.style.display = "block";
-    
-    profileImage.src = user.photoURL || 'https://via.placeholder.com/45';
-    profileName.textContent = user.displayName || 'Usuario';
-    
-    // Guardar usuario en base de datos
-    try {
-      await set(ref(db, "users/" + user.uid), {
-        name: user.displayName || 'Usuario',
-        photo: user.photoURL || 'https://via.placeholder.com/120',
-        email: user.email || ''
-      });
-      debug("Usuario guardado en BD:", user.uid);
-    } catch (error) {
-      console.error('Error al guardar usuario:', error);
-    }
-    
-    // Cargar likes del usuario
-    try {
-      const likesSnapshot = await get(ref(db, `likes/${user.uid}`));
-      if (likesSnapshot.exists()) {
-        currentUserLikes = new Set(Object.keys(likesSnapshot.val()));
-        debug("Likes cargados:", currentUserLikes.size);
-      }
-    } catch (error) {
-      console.error('Error al cargar likes:', error);
-    }
-    
-    // Click en perfil para ver mi propio perfil
-    profileSection.onclick = () => showProfileModal(user.uid);
-  } else {
-    currentUser = null;
-    loginBtn.style.display = "block";
-    loginBtn.disabled = false;
-    loginBtn.innerHTML = 'Iniciar sesión con Google';
-    profileSection.classList.add("hidden");
-    userArea.style.display = "none";
-    currentUserLikes.clear();
-  }
-});
-
-// Publicar post
-postBtn.onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage(postError, 'Debes iniciar sesión para publicar', true);
-    return;
-  }
-  
-  const message = postInput.value.trim();
-  if (!message) {
-    showMessage(postError, 'Escribe algo para publicar', true);
-    return;
-  }
-  
-  try {
-    postBtn.disabled = true;
-    postBtn.innerHTML = '<span class="loading-spinner"></span> Publicando...';
-    debug("Publicando post...");
-    
-    const postRef = push(ref(db, "posts"));
-    const postData = {
-      uid: user.uid,
-      name: user.displayName || 'Usuario',
-      photo: user.photoURL || 'https://via.placeholder.com/45',
-      message: message,
-      likes: 0,
-      date: Date.now()
-    };
-    
-    await set(postRef, postData);
-    debug("Post publicado:", postRef.key);
-    
-    postInput.value = "";
-    showMessage(postSuccess, '¡Publicado con éxito!');
-    
-  } catch (error) {
-    console.error('Error al publicar:', error);
-    showMessage(postError, 'Error al publicar: ' + error.message, true);
-  } finally {
-    postBtn.disabled = false;
-    postBtn.innerHTML = 'Publicar';
-  }
-};
-
-// Escuchar posts
-const postsRef = ref(db, "posts");
-debug("Escuchando cambios en posts...");
-
-onValue(postsRef, (snapshot) => {
-  debug("Datos de posts recibidos");
-  postsDiv.innerHTML = "";
-  
-  const data = snapshot.val();
-  debug("Datos crudos:", data);
-  
-  if (!data) {
-    debug("No hay posts");
-    postsDiv.innerHTML = '<div class="no-posts">No hay publicaciones aún. ¡Sé el primero en publicar!</div>';
-    return;
-  }
-  
-  // Convertir a array y ordenar
-  const postsArray = Object.entries(data)
-    .map(([id, post]) => {
-      if (!post) return null;
-      return { 
-        id, 
-        ...post,
-        // Asegurar que todos los campos existan
-        message: post.message || '',
-        name: post.name || 'Usuario',
-        photo: post.photo || 'https://via.placeholder.com/45',
-        uid: post.uid || '',
-        likes: post.likes || 0,
-        date: post.date || Date.now()
-      };
-    })
-    .filter(post => post !== null);
-  
-  debug(`Posts encontrados: ${postsArray.length}`);
-  
-  if (postsArray.length === 0) {
-    postsDiv.innerHTML = '<div class="no-posts">No hay publicaciones válidas</div>';
-    return;
-  }
-  
-  // Ordenar por fecha (más recientes primero)
-  postsArray.sort((a, b) => (b.date || 0) - (a.date || 0));
-  
-  // Mostrar cada post
-  postsArray.forEach(post => {
-    try {
-      // Procesar comentarios
-      const comments = post.comments || {};
-      const commentsArray = Object.entries(comments)
-        .map(([id, comment]) => ({ 
-          id, 
-          ...comment,
-          name: comment.name || 'Usuario',
-          text: comment.text || '',
-          uid: comment.uid || ''
-        }))
-        .sort((a, b) => (b.date || 0) - (a.date || 0));
-      
-      const commentsHTML = commentsArray.map(comment => `
-        <div class="comment">
-          <strong onclick="openProfile('${comment.uid}')">${comment.name}:</strong> 
-          ${comment.text}
-        </div>
-      `).join("");
-      
-      const hasLiked = currentUser && currentUserLikes.has(post.id);
-      
-      const postElement = document.createElement('div');
-      postElement.className = 'post';
-      postElement.innerHTML = `
-        <div class="post-header" onclick="openProfile('${post.uid}')">
-          <img src="${post.photo}" alt="${post.name}">
-          <strong>${post.name}</strong>
-        </div>
-        <div class="post-content">${post.message}</div>
-        <div class="post-actions">
-          <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
-            ❤️ <span class="likes-count">${post.likes}</span>
-          </button>
-        </div>
-        <div class="comment-input">
-          <input type="text" placeholder="Escribe un comentario..." id="comment-${post.id}">
-          <button onclick="commentPost('${post.id}')">Comentar</button>
-        </div>
-        <div class="comments-section">
-          ${commentsHTML || '<p style="opacity:0.5; text-align:center;">No hay comentarios aún</p>'}
-        </div>
-      `;
-      
-      postsDiv.appendChild(postElement);
-    } catch (error) {
-      console.error('Error al mostrar post:', error, post);
-    }
-  });
-}, (error) => {
-  console.error('Error al leer posts:', error);
-  debug("Error al leer posts:", error.message);
-  postsDiv.innerHTML = `<div class="error-message">Error al cargar posts: ${error.message}</div>`;
-});
-
-// Función para dar/quitar like
-window.toggleLike = async (postId, buttonElement) => {
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage(postError, 'Debes iniciar sesión para dar like', true);
-    return;
-  }
-  
-  const postRef = ref(db, `posts/${postId}`);
-  const likeRef = ref(db, `likes/${user.uid}/${postId}`);
-  
-  try {
-    buttonElement.disabled = true;
-    debug("Toggle like:", postId);
-    
-    const postSnapshot = await get(postRef);
-    const post = postSnapshot.val();
-    
-    if (!post) {
-      showMessage(postError, 'Post no encontrado', true);
-      return;
-    }
-    
-    if (currentUserLikes.has(postId)) {
-      // Quitar like
-      await update(postRef, { likes: Math.max(0, (post.likes || 0) - 1) });
-      await set(likeRef, null);
-      currentUserLikes.delete(postId);
-      buttonElement.classList.remove('liked');
-      debug("Like quitado:", postId);
+onAuthStateChanged(auth, async user => {
+    if (user) {
+        currentUser = user;
+        loginBtn.innerHTML = '<span>👤</span> ' + user.displayName.split(' ')[0];
+        userArea.style.display = "block";
+        
+        await loadUserLikes(user.uid);
+        
+        set(ref(db, "users/" + user.uid), {
+            name: user.displayName,
+            photo: user.photoURL,
+            email: user.email
+        });
     } else {
-      // Dar like
-      await update(postRef, { likes: (post.likes || 0) + 1 });
-      await set(likeRef, true);
-      currentUserLikes.add(postId);
-      buttonElement.classList.add('liked');
-      debug("Like agregado:", postId);
+        currentUser = null;
+        loginBtn.innerHTML = '<span>👤</span> Iniciar sesión';
+        userArea.style.display = "none";
+        userLikes = {};
     }
-    
-    // Actualizar contador
-    const likesCountSpan = buttonElement.querySelector('.likes-count');
-    const newCount = post.likes + (currentUserLikes.has(postId) ? 1 : -1);
-    likesCountSpan.textContent = Math.max(0, newCount);
-    
-  } catch (error) {
-    console.error('Error al actualizar like:', error);
-    showMessage(postError, 'Error al procesar el like: ' + error.message, true);
-  } finally {
-    buttonElement.disabled = false;
-  }
-};
+});
 
-// Función para comentar
-window.commentPost = async (postId) => {
-  const user = auth.currentUser;
-  const input = document.getElementById(`comment-${postId}`);
-  
-  if (!user) {
-    showMessage(postError, 'Debes iniciar sesión para comentar', true);
-    return;
-  }
-  
-  const commentText = input.value.trim();
-  if (!commentText) return;
-  
-  try {
-    const commentRef = push(ref(db, `posts/${postId}/comments`));
-    await set(commentRef, {
-      uid: user.uid,
-      name: user.displayName || 'Usuario',
-      text: commentText,
-      date: Date.now()
+postBtn.onclick = () => {
+    const user = auth.currentUser;
+    if (!user || !postInput.value.trim()) return;
+
+    push(ref(db, "posts"), {
+        uid: user.uid,
+        name: user.displayName,
+        photo: user.photoURL,
+        message: postInput.value,
+        likes: 0,
+        likesCount: 0,
+        comments: {},
+        date: Date.now()
     });
-    
-    input.value = "";
-    debug("Comentario agregado:", postId);
-    
-  } catch (error) {
-    console.error('Error al comentar:', error);
-    showMessage(postError, 'Error al publicar el comentario: ' + error.message, true);
-  }
+
+    postInput.value = "";
 };
 
-// Cerrar modal al hacer clic fuera
-profileModal.addEventListener('click', (e) => {
-  if (e.target === profileModal) {
-    closeProfileModal();
-  }
+onValue(ref(db, "posts"), snapshot => {
+    postsDiv.innerHTML = "";
+    const data = snapshot.val();
+    if (!data) return;
+
+    Object.entries(data).reverse().forEach(([id, post]) => {
+        const commentsHTML = post.comments ? Object.entries(post.comments).map(([commentId, comment]) => `
+            <div class="comment" key="${commentId}">
+                <strong>${comment.name}:</strong> ${comment.text}
+            </div>
+        `).join("") : "";
+
+        const hasLiked = currentUser && userLikes[id];
+        const likesCount = post.likesCount || post.likes || 0;
+
+        postsDiv.innerHTML += `
+        <div class="post" data-post-id="${id}">
+            <div class="post-header" onclick="showProfile('${post.uid}')">
+                <img src="${post.photo}" alt="${post.name}">
+                <strong>${post.name}</strong>
+            </div>
+            <div class="post-message">${post.message}</div>
+            <div class="post-actions">
+                <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="handleLike('${id}')">
+                    <span>❤️</span> ${likesCount}
+                </button>
+                <button class="action-btn" onclick="focusComment('${id}')">
+                    <span>💬</span> Comentar
+                </button>
+            </div>
+            <div class="comments-section" id="comments-${id}">
+                <div class="comment-input">
+                    <input type="text" placeholder="Escribe un comentario..." id="comment-input-${id}" onkeydown="if(event.key==='Enter')handleComment('${id}', this)">
+                    <button onclick="handleComment('${id}', document.getElementById('comment-input-${id}'))">Enviar</button>
+                </div>
+                <div class="comments-list">
+                    ${commentsHTML}
+                </div>
+            </div>
+        </div>
+        `;
+    });
 });
 
-// Permitir publicar con Enter
-postInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    postBtn.click();
-  }
+window.handleLike = async (postId) => {
+    if (!currentUser) {
+        alert("Debes iniciar sesión para dar like");
+        return;
+    }
+
+    const postRef = ref(db, "posts/" + postId);
+    const snapshot = await get(postRef);
+    const post = snapshot.val();
+    
+    if (!post) return;
+
+    const hasLiked = userLikes[postId];
+    const currentLikes = post.likesCount || post.likes || 0;
+
+    if (hasLiked) {
+        // Quitar like
+        await update(postRef, {
+            likesCount: currentLikes - 1
+        });
+        await removeUserLike(currentUser.uid, postId);
+    } else {
+        // Dar like
+        await update(postRef, {
+            likesCount: currentLikes + 1
+        });
+        await saveUserLike(currentUser.uid, postId);
+    }
+};
+
+window.handleComment = async (postId, input) => {
+    const user = auth.currentUser;
+    if (!user || !input.value.trim()) return;
+
+    await push(ref(db, "posts/" + postId + "/comments"), {
+        name: user.displayName,
+        text: input.value,
+        uid: user.uid,
+        date: Date.now()
+    });
+
+    input.value = "";
+};
+
+window.focusComment = (postId) => {
+    const input = document.getElementById(`comment-input-${postId}`);
+    if (input) {
+        input.focus();
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+};
+
+window.showProfile = async (userId) => {
+    const userRef = ref(db, "users/" + userId);
+    const postsRef = ref(db, "posts");
+    
+    const [userSnapshot, postsSnapshot] = await Promise.all([
+        get(userRef),
+        get(postsRef)
+    ]);
+    
+    const userData = userSnapshot.val();
+    const posts = postsSnapshot.val() || {};
+    
+    // Calcular estadísticas del usuario
+    const userPosts = Object.values(posts).filter(post => post.uid === userId);
+    const totalPosts = userPosts.length;
+    const totalLikes = userPosts.reduce((sum, post) => sum + (post.likesCount || post.likes || 0), 0);
+    const totalComments = userPosts.reduce((sum, post) => sum + (post.comments ? Object.keys(post.comments).length : 0), 0);
+    
+    profileContent.innerHTML = `
+        <div class="profile-header">
+            <img src="${userData?.photo || 'https://via.placeholder.com/100'}" alt="${userData?.name || 'Usuario'}">
+            <h2>${userData?.name || 'Usuario'}</h2>
+            <p style="opacity: 0.7;">${userData?.email || ''}</p>
+        </div>
+        <div class="profile-stats">
+            <div class="stat">
+                <div class="stat-value">${totalPosts}</div>
+                <div class="stat-label">Publicaciones</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">${totalLikes}</div>
+                <div class="stat-label">Likes recibidos</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">${totalComments}</div>
+                <div class="stat-label">Comentarios</div>
+            </div>
+        </div>
+        ${currentUser && userId === currentUser.uid ? `
+            <button onclick="signOut()" style="background: #ff4757; width: 100%; margin-top: 15px;">
+                <span>🚪</span> Cerrar sesión
+            </button>
+        ` : ''}
+    `;
+    
+    profileModal.style.display = "flex";
+};
+
+// Mostrar perfil propio
+profileBtn?.addEventListener('click', () => {
+    if (currentUser) {
+        showProfile(currentUser.uid);
+    }
 });
 
-// Verificar reglas de Firebase
-async function checkFirebaseRules() {
-  try {
-    debug("Verificando reglas de Firebase...");
-    const testRef = ref(db, 'test');
-    await set(testRef, { test: Date.now() });
-    await remove(testRef);
-    debug("Reglas de Firebase OK - escritura permitida");
-  } catch (error) {
-    debug("Error en reglas de Firebase:", error.message);
-    showMessage(postError, 'Error de permisos: ' + error.message, true);
-  }
-}
+// Cerrar modal
+closeProfile.onclick = () => {
+    profileModal.style.display = "none";
+};
 
-// Ejecutar verificación
-setTimeout(checkFirebaseRules, 2000);
+window.onclick = (event) => {
+    if (event.target === profileModal) {
+        profileModal.style.display = "none";
+    }
+};
+
+// Función de cierre de sesión
+window.signOut = async () => {
+    try {
+        await signOut(auth);
+        profileModal.style.display = "none";
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
+};
+
+// Inicializar eventos de like y comentario desde el HTML
+window.likePost = null; // Eliminar función anterior
+window.commentPost = null; // Eliminar función anterior
 </script>
 </body>
 </html>
