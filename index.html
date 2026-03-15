@@ -111,21 +111,15 @@ button.primary {
   color: white;
 }
 
-button.primary:hover {
+button.primary:hover:not(:disabled) {
   background: var(--primary-dark);
   transform: translateY(-2px);
   box-shadow: 0 10px 20px -10px var(--primary);
 }
 
-button.outline {
-  background: transparent;
-  border: 2px solid var(--primary);
-  color: var(--primary);
-}
-
-button.outline:hover {
-  background: var(--primary);
-  color: white;
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .profile-section {
@@ -248,7 +242,7 @@ button.outline:hover {
   border-color: var(--danger);
 }
 
-.like-btn:not(.liked):hover {
+.like-btn:not(.liked):hover:not(:disabled) {
   background: rgba(239, 68, 68, 0.1);
   border-color: var(--danger);
 }
@@ -271,7 +265,7 @@ button.outline:hover {
   min-width: 80px;
 }
 
-.comment-input button:hover {
+.comment-input button:hover:not(:disabled) {
   background: var(--primary-dark);
 }
 
@@ -400,6 +394,7 @@ button.outline:hover {
   font-size: 1.2rem;
   cursor: pointer;
   transition: var(--transition);
+  border: none;
 }
 
 .close-btn:hover {
@@ -483,6 +478,9 @@ button.outline:hover {
   font-size: 0.9rem;
   margin-top: 0.5rem;
   text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .success-message {
@@ -490,6 +488,9 @@ button.outline:hover {
   font-size: 0.9rem;
   margin-top: 0.5rem;
   text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(16, 185, 129, 0.1);
 }
 
 .loading-spinner {
@@ -504,6 +505,22 @@ button.outline:hover {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.no-posts {
+  text-align: center;
+  padding: 3rem;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.debug-info {
+  font-size: 0.8rem;
+  padding: 0.5rem;
+  background: rgba(0,0,0,0.1);
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  word-break: break-all;
 }
 </style>
 </head>
@@ -522,14 +539,16 @@ button.outline:hover {
     <textarea id="postInput" placeholder="¿Qué estás pensando?" rows="3"></textarea>
     <button id="postBtn" class="primary">Publicar</button>
     <div id="postError" class="error-message hidden"></div>
+    <div id="postSuccess" class="success-message hidden"></div>
   </div>
 
   <div id="posts" class="posts-grid"></div>
+  <div id="debugInfo" class="debug-info hidden"></div>
 </div>
 
 <div id="profileModal" class="profile-modal hidden">
   <div class="profile-card">
-    <div class="close-btn" onclick="closeProfileModal()">✕</div>
+    <button class="close-btn" onclick="closeProfileModal()">✕</button>
     <img id="modalProfileImage" src="" alt="Profile">
     <h2 id="modalProfileName"></h2>
     <p id="modalProfileEmail"></p>
@@ -549,8 +568,9 @@ button.outline:hover {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, set, push, onValue, update, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, push, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBxOsWfP64cAUsMK6XPwfUcrEI6xQF_lc4",
   authDomain: "yarep-ydturl.firebaseapp.com",
@@ -561,11 +581,14 @@ const firebaseConfig = {
   appId: "1:765100698390:web:7db4490c174dac46253e37"
 };
 
+// Inicializar Firebase
+console.log("Inicializando Firebase...");
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
+// Configurar persistencia
 await setPersistence(auth, browserLocalPersistence);
 
 // Elementos del DOM
@@ -574,6 +597,7 @@ const userArea = document.getElementById("userArea");
 const postBtn = document.getElementById("postBtn");
 const postInput = document.getElementById("postInput");
 const postError = document.getElementById("postError");
+const postSuccess = document.getElementById("postSuccess");
 const postsDiv = document.getElementById("posts");
 const profileSection = document.getElementById("profileSection");
 const profileImage = document.getElementById("profileImage");
@@ -584,19 +608,37 @@ const modalProfileName = document.getElementById("modalProfileName");
 const modalProfileEmail = document.getElementById("modalProfileEmail");
 const modalPostsCount = document.getElementById("modalPostsCount");
 const modalLikesCount = document.getElementById("modalLikesCount");
+const debugInfo = document.getElementById("debugInfo");
 
-// Estado de likes del usuario actual
-let currentUserLikes = new Set();
+// Estado de la aplicación
 let currentUser = null;
+let currentUserLikes = new Set();
 
-// Función para mostrar error
-function showError(element, message) {
+// Función para mostrar mensajes
+function showMessage(element, message, isError = false) {
   element.textContent = message;
   element.classList.remove('hidden');
+  
+  if (isError) {
+    console.error(message);
+  } else {
+    console.log(message);
+  }
+  
   setTimeout(() => {
     element.classList.add('hidden');
   }, 3000);
 }
+
+// Función para depuración
+function debug(message, data = null) {
+  console.log(message, data);
+  debugInfo.classList.remove('hidden');
+  debugInfo.innerHTML = `${new Date().toLocaleTimeString()}: ${message}<br>${data ? JSON.stringify(data).substring(0, 100) : ''}`;
+}
+
+// Verificar conexión a Firebase
+debug("Verificando conexión a Firebase...");
 
 // Función para cerrar sesión
 window.logout = async () => {
@@ -624,7 +666,10 @@ async function showProfileModal(uid) {
     const userSnapshot = await get(ref(db, `users/${uid}`));
     const userData = userSnapshot.val();
     
-    if (!userData) return;
+    if (!userData) {
+      showMessage(postError, 'Usuario no encontrado', true);
+      return;
+    }
     
     modalProfileImage.src = userData.photo || 'https://via.placeholder.com/120';
     modalProfileName.textContent = userData.name || 'Usuario';
@@ -633,7 +678,7 @@ async function showProfileModal(uid) {
     // Contar publicaciones del usuario
     const postsSnapshot = await get(ref(db, 'posts'));
     const posts = postsSnapshot.val() || {};
-    const userPosts = Object.values(posts).filter(post => post.uid === uid);
+    const userPosts = Object.values(posts).filter(post => post && post.uid === uid);
     modalPostsCount.textContent = userPosts.length;
     
     // Contar likes totales recibidos
@@ -643,6 +688,7 @@ async function showProfileModal(uid) {
     profileModal.classList.remove('hidden');
   } catch (error) {
     console.error('Error al mostrar perfil:', error);
+    showMessage(postError, 'Error al cargar perfil', true);
   }
 }
 
@@ -651,17 +697,23 @@ loginBtn.onclick = async () => {
   try {
     loginBtn.disabled = true;
     loginBtn.innerHTML = '<span class="loading-spinner"></span> Cargando...';
-    await signInWithPopup(auth, provider);
+    debug("Iniciando sesión con Google...");
+    
+    const result = await signInWithPopup(auth, provider);
+    debug("Sesión iniciada:", result.user.email);
+    
   } catch (error) {
     console.error('Error al iniciar sesión:', error);
-    showError(postError, 'Error al iniciar sesión. Por favor, intenta de nuevo.');
+    showMessage(postError, 'Error al iniciar sesión: ' + error.message, true);
     loginBtn.disabled = false;
-    loginBtn.textContent = 'Iniciar sesión con Google';
+    loginBtn.innerHTML = 'Iniciar sesión con Google';
   }
 };
 
 // Estado de autenticación
 onAuthStateChanged(auth, async (user) => {
+  debug("Estado de autenticación cambiado:", user ? user.email : "No autenticado");
+  
   if (user) {
     currentUser = user;
     loginBtn.style.display = "none";
@@ -672,17 +724,23 @@ onAuthStateChanged(auth, async (user) => {
     profileName.textContent = user.displayName || 'Usuario';
     
     // Guardar usuario en base de datos
-    await set(ref(db, "users/" + user.uid), {
-      name: user.displayName || 'Usuario',
-      photo: user.photoURL || 'https://via.placeholder.com/120',
-      email: user.email || ''
-    });
+    try {
+      await set(ref(db, "users/" + user.uid), {
+        name: user.displayName || 'Usuario',
+        photo: user.photoURL || 'https://via.placeholder.com/120',
+        email: user.email || ''
+      });
+      debug("Usuario guardado en BD:", user.uid);
+    } catch (error) {
+      console.error('Error al guardar usuario:', error);
+    }
     
     // Cargar likes del usuario
     try {
       const likesSnapshot = await get(ref(db, `likes/${user.uid}`));
       if (likesSnapshot.exists()) {
         currentUserLikes = new Set(Object.keys(likesSnapshot.val()));
+        debug("Likes cargados:", currentUserLikes.size);
       }
     } catch (error) {
       console.error('Error al cargar likes:', error);
@@ -693,6 +751,8 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     currentUser = null;
     loginBtn.style.display = "block";
+    loginBtn.disabled = false;
+    loginBtn.innerHTML = 'Iniciar sesión con Google';
     profileSection.classList.add("hidden");
     userArea.style.display = "none";
     currentUserLikes.clear();
@@ -703,106 +763,135 @@ onAuthStateChanged(auth, async (user) => {
 postBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) {
-    showError(postError, 'Debes iniciar sesión para publicar');
+    showMessage(postError, 'Debes iniciar sesión para publicar', true);
     return;
   }
   
   const message = postInput.value.trim();
   if (!message) {
-    showError(postError, 'Escribe algo para publicar');
+    showMessage(postError, 'Escribe algo para publicar', true);
     return;
   }
   
   try {
     postBtn.disabled = true;
     postBtn.innerHTML = '<span class="loading-spinner"></span> Publicando...';
+    debug("Publicando post...");
     
     const postRef = push(ref(db, "posts"));
-    await set(postRef, {
+    const postData = {
       uid: user.uid,
       name: user.displayName || 'Usuario',
       photo: user.photoURL || 'https://via.placeholder.com/45',
       message: message,
       likes: 0,
       date: Date.now()
-    });
+    };
+    
+    await set(postRef, postData);
+    debug("Post publicado:", postRef.key);
     
     postInput.value = "";
-    postBtn.disabled = false;
-    postBtn.textContent = 'Publicar';
+    showMessage(postSuccess, '¡Publicado con éxito!');
     
   } catch (error) {
     console.error('Error al publicar:', error);
-    showError(postError, 'Error al publicar. Intenta de nuevo.');
+    showMessage(postError, 'Error al publicar: ' + error.message, true);
+  } finally {
     postBtn.disabled = false;
-    postBtn.textContent = 'Publicar';
+    postBtn.innerHTML = 'Publicar';
   }
 };
 
 // Escuchar posts
-onValue(ref(db, "posts"), (snapshot) => {
+const postsRef = ref(db, "posts");
+debug("Escuchando cambios en posts...");
+
+onValue(postsRef, (snapshot) => {
+  debug("Datos de posts recibidos");
   postsDiv.innerHTML = "";
+  
   const data = snapshot.val();
-  if (!data) return;
   
-  // Convertir a array y ordenar por fecha
-  const postsArray = Object.entries(data).map(([id, post]) => ({
-    id,
-    ...post
-  }));
+  if (!data) {
+    debug("No hay posts");
+    postsDiv.innerHTML = '<div class="no-posts">No hay publicaciones aún. ¡Sé el primero en publicar!</div>';
+    return;
+  }
   
+  // Convertir a array y ordenar
+  const postsArray = Object.entries(data)
+    .map(([id, post]) => {
+      if (!post) return null;
+      return { id, ...post };
+    })
+    .filter(post => post !== null);
+  
+  debug(`Posts encontrados: ${postsArray.length}`);
+  
+  if (postsArray.length === 0) {
+    postsDiv.innerHTML = '<div class="no-posts">No hay publicaciones válidas</div>';
+    return;
+  }
+  
+  // Ordenar por fecha (más recientes primero)
   postsArray.sort((a, b) => (b.date || 0) - (a.date || 0));
   
   postsArray.forEach(post => {
-    const comments = post.comments || {};
-    const commentsArray = Object.entries(comments).map(([id, comment]) => ({
-      id,
-      ...comment
-    }));
-    
-    commentsArray.sort((a, b) => (b.date || 0) - (a.date || 0));
-    
-    const commentsHTML = commentsArray.map(comment => `
-      <div class="comment">
-        <strong onclick="openProfile('${comment.uid}')">${comment.name}:</strong> 
-        ${comment.text}
-      </div>
-    `).join("");
-    
-    const user = auth.currentUser;
-    const hasLiked = user && currentUserLikes.has(post.id);
-    
-    const postElement = document.createElement('div');
-    postElement.className = 'post';
-    postElement.innerHTML = `
-      <div class="post-header" onclick="openProfile('${post.uid}')">
-        <img src="${post.photo || 'https://via.placeholder.com/45'}" alt="${post.name}">
-        <strong>${post.name}</strong>
-      </div>
-      <div class="post-content">${post.message}</div>
-      <div class="post-actions">
-        <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
-          ❤️ <span class="likes-count">${post.likes || 0}</span>
-        </button>
-      </div>
-      <div class="comment-input">
-        <input type="text" placeholder="Escribe un comentario..." id="comment-${post.id}">
-        <button onclick="commentPost('${post.id}')">Comentar</button>
-      </div>
-      <div class="comments-section">
-        ${commentsHTML || '<p style="opacity:0.5; text-align:center;">No hay comentarios aún</p>'}
-      </div>
-    `;
-    
-    postsDiv.appendChild(postElement);
+    try {
+      // Procesar comentarios
+      const comments = post.comments || {};
+      const commentsArray = Object.entries(comments)
+        .map(([id, comment]) => ({ id, ...comment }))
+        .sort((a, b) => (b.date || 0) - (a.date || 0));
+      
+      const commentsHTML = commentsArray.map(comment => `
+        <div class="comment">
+          <strong onclick="openProfile('${comment.uid}')">${comment.name || 'Usuario'}:</strong> 
+          ${comment.text || ''}
+        </div>
+      `).join("");
+      
+      const hasLiked = currentUser && currentUserLikes.has(post.id);
+      
+      const postElement = document.createElement('div');
+      postElement.className = 'post';
+      postElement.innerHTML = `
+        <div class="post-header" onclick="openProfile('${post.uid}')">
+          <img src="${post.photo || 'https://via.placeholder.com/45'}" alt="${post.name || 'Usuario'}">
+          <strong>${post.name || 'Usuario'}</strong>
+        </div>
+        <div class="post-content">${post.message || ''}</div>
+        <div class="post-actions">
+          <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
+            ❤️ <span class="likes-count">${post.likes || 0}</span>
+          </button>
+        </div>
+        <div class="comment-input">
+          <input type="text" placeholder="Escribe un comentario..." id="comment-${post.id}">
+          <button onclick="commentPost('${post.id}')">Comentar</button>
+        </div>
+        <div class="comments-section">
+          ${commentsHTML || '<p style="opacity:0.5; text-align:center;">No hay comentarios aún</p>'}
+        </div>
+      `;
+      
+      postsDiv.appendChild(postElement);
+    } catch (error) {
+      console.error('Error al mostrar post:', error, post);
+    }
   });
+}, (error) => {
+  console.error('Error al leer posts:', error);
+  debug("Error al leer posts:", error.message);
+  postsDiv.innerHTML = `<div class="error-message">Error al cargar posts: ${error.message}</div>`;
 });
 
 // Función para dar/quitar like
 window.toggleLike = async (postId, buttonElement) => {
   const user = auth.currentUser;
   if (!user) {
-    alert('Debes iniciar sesión para dar like');
+    showMessage(postError, 'Debes iniciar sesión para dar like', true);
     return;
   }
   
@@ -811,11 +900,15 @@ window.toggleLike = async (postId, buttonElement) => {
   
   try {
     buttonElement.disabled = true;
+    debug("Toggle like:", postId);
     
     const postSnapshot = await get(postRef);
     const post = postSnapshot.val();
     
-    if (!post) return;
+    if (!post) {
+      showMessage(postError, 'Post no encontrado', true);
+      return;
+    }
     
     if (currentUserLikes.has(postId)) {
       // Quitar like
@@ -823,12 +916,14 @@ window.toggleLike = async (postId, buttonElement) => {
       await set(likeRef, null);
       currentUserLikes.delete(postId);
       buttonElement.classList.remove('liked');
+      debug("Like quitado:", postId);
     } else {
       // Dar like
       await update(postRef, { likes: (post.likes || 0) + 1 });
       await set(likeRef, true);
       currentUserLikes.add(postId);
       buttonElement.classList.add('liked');
+      debug("Like agregado:", postId);
     }
     
     // Actualizar contador
@@ -836,11 +931,10 @@ window.toggleLike = async (postId, buttonElement) => {
     const newCount = post.likes + (currentUserLikes.has(postId) ? 1 : -1);
     likesCountSpan.textContent = Math.max(0, newCount);
     
-    buttonElement.disabled = false;
-    
   } catch (error) {
     console.error('Error al actualizar like:', error);
-    alert('Error al procesar el like');
+    showMessage(postError, 'Error al procesar el like: ' + error.message, true);
+  } finally {
     buttonElement.disabled = false;
   }
 };
@@ -851,7 +945,7 @@ window.commentPost = async (postId) => {
   const input = document.getElementById(`comment-${postId}`);
   
   if (!user) {
-    alert('Debes iniciar sesión para comentar');
+    showMessage(postError, 'Debes iniciar sesión para comentar', true);
     return;
   }
   
@@ -868,10 +962,11 @@ window.commentPost = async (postId) => {
     });
     
     input.value = "";
+    debug("Comentario agregado:", postId);
     
   } catch (error) {
     console.error('Error al comentar:', error);
-    alert('Error al publicar el comentario');
+    showMessage(postError, 'Error al publicar el comentario: ' + error.message, true);
   }
 };
 
@@ -889,6 +984,23 @@ postInput.addEventListener('keydown', (e) => {
     postBtn.click();
   }
 });
+
+// Verificar reglas de Firebase
+async function checkFirebaseRules() {
+  try {
+    debug("Verificando reglas de Firebase...");
+    const testRef = ref(db, 'test');
+    await set(testRef, { test: Date.now() });
+    await remove(testRef);
+    debug("Reglas de Firebase OK - escritura permitida");
+  } catch (error) {
+    debug("Error en reglas de Firebase:", error.message);
+    showMessage(postError, 'Error de permisos: ' + error.message, true);
+  }
+}
+
+// Ejecutar verificación
+setTimeout(checkFirebaseRules, 2000);
 </script>
 </body>
 </html>
