@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yarep - Red Social</title>
+<title>Yarep</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -25,6 +25,17 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
+/* Temas */
+body.light-theme {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333333;
+}
+
+body.dark-theme {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    color: #ffffff;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -44,6 +55,8 @@ body {
     align-items: center;
     width: 100%;
     margin-bottom: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .logo {
@@ -53,6 +66,28 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.settings-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: inherit;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.settings-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
 }
 
 textarea, input {
@@ -66,9 +101,22 @@ textarea, input {
     outline: none;
 }
 
-textarea {
-    min-height: 100px;
-    resize: vertical;
+body.light-theme textarea,
+body.light-theme input {
+    background: white;
+    color: #333333;
+    border-color: #e0e0e0;
+}
+
+body.dark-theme textarea,
+body.dark-theme input {
+    background: rgba(255,255,255,0.05);
+    color: #ffffff;
+    border-color: rgba(255,255,255,0.1);
+}
+
+textarea:focus, input:focus {
+    border-color: #667eea !important;
 }
 
 button {
@@ -102,6 +150,12 @@ button:active {
     border: 2px solid #e0e0e0;
 }
 
+body.dark-theme #loginBtn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border-color: rgba(255,255,255,0.2);
+}
+
 #userArea {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(10px);
@@ -125,6 +179,15 @@ button:active {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.2);
+}
+
+body.light-theme .post {
+    background: rgba(255,255,255,0.7);
+    border-color: rgba(0,0,0,0.1);
+}
+
+body.dark-theme .post {
+    background: rgba(255,255,255,0.03);
 }
 
 .post:hover {
@@ -218,12 +281,18 @@ button:active {
     line-height: 1.5;
 }
 
+body.light-theme .comment {
+    background: rgba(0,0,0,0.03);
+}
+
 .comment strong {
     color: #667eea;
     font-weight: 600;
 }
 
-.profile-modal {
+/* Modal de perfil */
+.profile-modal,
+.settings-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -238,7 +307,8 @@ button:active {
     animation: fadeIn 0.3s ease;
 }
 
-.profile-content {
+.profile-content,
+.settings-content {
     background: rgba(30,30,40,0.95);
     border-radius: 24px;
     padding: 30px;
@@ -246,6 +316,14 @@ button:active {
     width: 90%;
     position: relative;
     border: 1px solid rgba(255,255,255,0.2);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+body.light-theme .profile-content,
+body.light-theme .settings-content {
+    background: rgba(255,255,255,0.95);
+    color: #333;
 }
 
 .close-btn {
@@ -265,6 +343,11 @@ button:active {
     justify-content: center;
 }
 
+body.light-theme .close-btn {
+    color: #333;
+    background: rgba(0,0,0,0.1);
+}
+
 .close-btn:hover {
     background: rgba(255,255,255,0.2);
 }
@@ -282,6 +365,13 @@ button:active {
     height: 100px;
     border-radius: 50%;
     border: 3px solid #667eea;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.profile-header img:hover {
+    transform: scale(1.05);
 }
 
 .profile-stats {
@@ -322,61 +412,119 @@ button:active {
     background: rgba(255,255,255,0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-    body {
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-        color: #ffffff;
-    }
-    
-    textarea, input {
-        background: rgba(255,255,255,0.05);
-        color: #ffffff;
-        border-color: rgba(255,255,255,0.1);
-    }
-    
-    textarea:focus, input:focus {
-        border-color: #667eea;
-    }
-    
-    .post {
-        background: rgba(255,255,255,0.03);
-    }
+/* Estilos para ajustes */
+.settings-section {
+    margin-bottom: 30px;
 }
 
-@media (prefers-color-scheme: light) {
-    body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        color: #333333;
-    }
-    
-    textarea, input {
-        background: white;
-        color: #333333;
-        border-color: #e0e0e0;
-    }
-    
-    textarea:focus, input:focus {
-        border-color: #667eea;
-    }
-    
-    .post {
-        background: rgba(255,255,255,0.7);
-        border-color: rgba(0,0,0,0.1);
-    }
-    
-    .comment {
-        background: rgba(0,0,0,0.03);
-    }
+.settings-section h3 {
+    margin-bottom: 20px;
+    color: #667eea;
+}
+
+.theme-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.theme-option {
+    flex: 1;
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.theme-option.light {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+}
+
+.theme-option.dark {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    color: white;
+}
+
+.theme-option.selected {
+    border-color: #667eea;
+    transform: scale(1.05);
+}
+
+.edit-field {
+    margin-bottom: 20px;
+}
+
+.edit-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.edit-field input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: inherit;
+}
+
+.edit-field input:focus {
+    border-color: #667eea;
+}
+
+.photo-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.photo-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #667eea;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.photo-upload input[type="file"] {
+    display: none;
+}
+
+.photo-upload-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: inherit;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.photo-upload-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.save-btn {
+    width: 100%;
+    margin-top: 20px;
 }
 </style>
 </head>
-<body>
+<body class="dark-theme">
 <div class="container">
     <div class="header">
         <span class="logo">Yarep</span>
-        <button id="loginBtn" class="user-profile-btn">
-            <span>👤</span> Iniciar sesión
-        </button>
+        <div class="header-buttons">
+            <button id="settingsBtn" class="settings-btn" title="Ajustes">⚙️</button>
+            <button id="loginBtn" class="user-profile-btn">
+                <span>👤</span> Iniciar sesión
+            </button>
+        </div>
     </div>
 
     <div id="userArea" style="display:none;">
@@ -401,10 +549,49 @@ button:active {
     </div>
 </div>
 
+<!-- Modal de ajustes -->
+<div id="settingsModal" class="settings-modal">
+    <div class="settings-content">
+        <button class="close-btn" id="closeSettings">&times;</button>
+        <h2 style="text-align: center; margin-bottom: 25px; color: #667eea;">Ajustes</h2>
+        
+        <div class="settings-section">
+            <h3>Tema</h3>
+            <div class="theme-options">
+                <div class="theme-option light" onclick="setTheme('light')">
+                    <div style="font-size: 24px; margin-bottom: 10px;">☀️</div>
+                    <div>Claro</div>
+                </div>
+                <div class="theme-option dark" onclick="setTheme('dark')">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🌙</div>
+                    <div>Oscuro</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section" id="profileSettings" style="display: none;">
+            <h3>Editar Perfil</h3>
+            <div class="photo-upload">
+                <img id="photoPreview" src="" alt="Foto de perfil" class="photo-preview" onclick="document.getElementById('photoInput').click()">
+                <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)">
+                <label for="photoInput" class="photo-upload-btn">📷 Cambiar foto</label>
+            </div>
+            
+            <div class="edit-field">
+                <label>Nombre</label>
+                <input type="text" id="displayNameInput" placeholder="Tu nombre">
+            </div>
+
+            <button class="save-btn" onclick="saveProfileChanges()">Guardar cambios</button>
+        </div>
+    </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getDatabase, ref, set, push, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBxOsWfP64cAUsMK6XPwfUcrEI6xQF_lc4",
@@ -419,6 +606,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+const storage = getStorage(app);
 const provider = new GoogleAuthProvider();
 
 await setPersistence(auth, browserLocalPersistence);
@@ -432,9 +620,33 @@ const profileBtn = document.getElementById("profileBtn");
 const profileModal = document.getElementById("profileModal");
 const profileContent = document.getElementById("profileContent");
 const closeProfile = document.getElementById("closeProfile");
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const closeSettings = document.getElementById("closeSettings");
+const profileSettings = document.getElementById("profileSettings");
+const photoPreview = document.getElementById("photoPreview");
+const displayNameInput = document.getElementById("displayNameInput");
+const photoInput = document.getElementById("photoInput");
 
 let currentUser = null;
 let userLikes = {};
+
+// Tema
+function setTheme(theme) {
+    document.body.className = theme + '-theme';
+    localStorage.setItem('theme', theme);
+    
+    // Actualizar selección visual
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    document.querySelector('.theme-option.' + theme).classList.add('selected');
+}
+window.setTheme = setTheme;
+
+// Cargar tema guardado
+const savedTheme = localStorage.getItem('theme') || 'dark';
+setTheme(savedTheme);
 
 // Cargar likes del usuario
 async function loadUserLikes(userId) {
@@ -470,18 +682,24 @@ onAuthStateChanged(auth, async user => {
         currentUser = user;
         loginBtn.innerHTML = '<span>👤</span> ' + user.displayName.split(' ')[0];
         userArea.style.display = "block";
+        profileSettings.style.display = "block";
         
         await loadUserLikes(user.uid);
         
+        // Actualizar datos en la base de datos (sin email)
         set(ref(db, "users/" + user.uid), {
             name: user.displayName,
-            photo: user.photoURL,
-            email: user.email
+            photo: user.photoURL
         });
+        
+        // Cargar datos actuales en el modal de ajustes
+        displayNameInput.value = user.displayName || '';
+        photoPreview.src = user.photoURL || 'https://via.placeholder.com/100';
     } else {
         currentUser = null;
         loginBtn.innerHTML = '<span>👤</span> Iniciar sesión';
         userArea.style.display = "none";
+        profileSettings.style.display = "none";
         userLikes = {};
     }
 });
@@ -564,13 +782,11 @@ window.handleLike = async (postId) => {
     const currentLikes = post.likesCount || post.likes || 0;
 
     if (hasLiked) {
-        // Quitar like
         await update(postRef, {
             likesCount: currentLikes - 1
         });
         await removeUserLike(currentUser.uid, postId);
     } else {
-        // Dar like
         await update(postRef, {
             likesCount: currentLikes + 1
         });
@@ -622,7 +838,6 @@ window.showProfile = async (userId) => {
         <div class="profile-header">
             <img src="${userData?.photo || 'https://via.placeholder.com/100'}" alt="${userData?.name || 'Usuario'}">
             <h2>${userData?.name || 'Usuario'}</h2>
-            <p style="opacity: 0.7;">${userData?.email || ''}</p>
         </div>
         <div class="profile-stats">
             <div class="stat">
@@ -655,14 +870,102 @@ profileBtn?.addEventListener('click', () => {
     }
 });
 
-// Cerrar modal
+// Cerrar modales
 closeProfile.onclick = () => {
     profileModal.style.display = "none";
+};
+
+closeSettings.onclick = () => {
+    settingsModal.style.display = "none";
 };
 
 window.onclick = (event) => {
     if (event.target === profileModal) {
         profileModal.style.display = "none";
+    }
+    if (event.target === settingsModal) {
+        settingsModal.style.display = "none";
+    }
+};
+
+// Abrir ajustes
+settingsBtn.onclick = () => {
+    if (currentUser) {
+        photoPreview.src = currentUser.photoURL || 'https://via.placeholder.com/100';
+        displayNameInput.value = currentUser.displayName || '';
+    }
+    settingsModal.style.display = "flex";
+};
+
+// Vista previa de foto
+window.previewPhoto = (input) => {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            photoPreview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+
+// Guardar cambios de perfil
+window.saveProfileChanges = async () => {
+    if (!currentUser) return;
+    
+    const newName = displayNameInput.value.trim();
+    if (!newName) {
+        alert("El nombre no puede estar vacío");
+        return;
+    }
+    
+    try {
+        let photoURL = currentUser.photoURL;
+        
+        // Si hay una nueva foto
+        if (photoInput.files && photoInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imageRef = storageRef(storage, `profilePhotos/${currentUser.uid}`);
+                await uploadString(imageRef, e.target.result, 'data_url');
+                photoURL = await getDownloadURL(imageRef);
+                
+                await updateProfile(currentUser, {
+                    displayName: newName,
+                    photoURL: photoURL
+                });
+                
+                // Actualizar en la base de datos
+                await set(ref(db, "users/" + currentUser.uid), {
+                    name: newName,
+                    photo: photoURL
+                });
+                
+                alert("Perfil actualizado correctamente");
+                settingsModal.style.display = "none";
+                
+                // Recargar la página para actualizar todas las publicaciones
+                location.reload();
+            };
+            reader.readAsDataURL(photoInput.files[0]);
+        } else {
+            await updateProfile(currentUser, {
+                displayName: newName
+            });
+            
+            await set(ref(db, "users/" + currentUser.uid), {
+                name: newName,
+                photo: currentUser.photoURL
+            });
+            
+            alert("Perfil actualizado correctamente");
+            settingsModal.style.display = "none";
+            
+            // Recargar la página para actualizar todas las publicaciones
+            location.reload();
+        }
+    } catch (error) {
+        console.error("Error al actualizar perfil:", error);
+        alert("Error al actualizar el perfil");
     }
 };
 
@@ -675,10 +978,6 @@ window.signOut = async () => {
         console.error("Error al cerrar sesión:", error);
     }
 };
-
-// Inicializar eventos de like y comentario desde el HTML
-window.likePost = null; // Eliminar función anterior
-window.commentPost = null; // Eliminar función anterior
 </script>
 </body>
 </html>
